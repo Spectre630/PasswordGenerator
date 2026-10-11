@@ -1,10 +1,10 @@
 # Password Generator
 # by Spectre
-# ver. 0.1 (4-Sep-25)
+# ver. 0.2 (10-Oct-26)
 #
 # This script will generate a random password based on length and desired characters
 
-import random, sys
+import secrets, sys
 
 #Create a string that will hold the possible characters
 possible_characters = ""
@@ -39,7 +39,7 @@ def include_symbols(exclude_possibly_forbidden = True):
 
 #Function to get one character from the list of possible characters
 def get_character():
-    return random.choice(possible_characters)
+    return secrets.choice(possible_characters)
 
 #Function to generate a password of defined length
 def generate_password(length):

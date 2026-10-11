@@ -3,14 +3,14 @@
 """
 Filename: word_list.py
 Author: Spectre
-Date: 2025-09-06
-Version: 0.1
+Date: 2026-10-10
+Version: 0.2
 Description: This script reads a list of English words and exposes them as a class that contains a dictionary based on the first letter of the word.
 
 This uses the "Small Spelling Dictionary" from Dr. Phillip M. Feldman, https://phillipmfeldman.org/English/spelling%20dictionaries.html
 """
 
-import os, random
+import os, secrets
 
 class WordList:
     """
@@ -43,6 +43,7 @@ class WordList:
         This function returns a random word starting with the specified letter.
         """
 
-        i = random.randrange(len(self.words[first_letter.lower()]))
+        #i = random.randrange(len(self.words[first_letter.lower()]))
+        i = secrets.randbelow(len(self.words[first_letter.lower()]))
         return self.words[first_letter][i]
 

@@ -3,8 +3,8 @@
 """
 Filename: ppgen.py
 Author: Spectre
-Date: 2025-10-01
-Version: 0.1
+Date: 2026-10-10
+Version: 0.2
 Description: This script generates a pass phrase.  Optionally can be seeded by a starting acronym and has options for changing characters to [hopefully] add entropy that avoids dictionary attacks.
 
 This uses the "Small Spelling Dictionary" from Dr. Phillip M. Feldman, https://phillipmfeldman.org/English/spelling%20dictionaries.html
@@ -14,7 +14,7 @@ This uses the "Small Spelling Dictionary" from Dr. Phillip M. Feldman, https://p
 # leetify (+weighting); case options - capitalize first, capitalize random (+weighting)
 #  Some other inputs for consideration - inject numbers and letters at random?  Perhaps as part of the random seed?
 
-import word_list, leetify, random, argparse, string
+import word_list, leetify, secrets, argparse, string
 
 #Define some handy constants
 PASSPHRASE_COUNT = "count"
@@ -27,7 +27,7 @@ def generate_random_string(length:int)->str:
     #Generate a random length string of specified length to use as a seed word
     string_buffer = ""
     for i in range(length):
-        string_buffer += random.choice(string.ascii_lowercase)
+        string_buffer += secrets.choice(string.ascii_lowercase)
     return string_buffer
 
 def capitalize_random(word:str, capitalize_chance:int=10)->str:
@@ -36,7 +36,8 @@ def capitalize_random(word:str, capitalize_chance:int=10)->str:
 
     #loop through each character, capitalize if the odds favor it
     for i in range(1, len(word_buffer)):
-        if random.randint(1, 100) <= capitalize_chance:
+        #if random.randint(1, 100) <= capitalize_chance:
+        if (secrets.randbelow(99)+1) <= capitalize_chance:
             #We win! Capitalize
             word_buffer[i] = word_buffer[i].upper()
 
