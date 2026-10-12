@@ -22,6 +22,7 @@ SEED_WORD = "seed"
 CAPITALIZE_FIRST = "capFirst"
 CAPITALIZE_RANDOM = "capRandom"
 LEET_RANDOM = "leetRandom"
+PASSPHRASE_WORD_DELIMITER = "wordDelimiter"
 
 def generate_random_string(length:int)->str:
     #Generate a random length string of specified length to use as a seed word
@@ -44,14 +45,14 @@ def capitalize_random(word:str, capitalize_chance:int=10)->str:
     #return the new string
     return ''.join(word_buffer)
 
-def generate_passphrase(words:word_list.WordList, seed:str, capitalize_first:bool, capitalize_random_weight:int, leetify_weight:int)->str:
+def generate_passphrase(words:word_list.WordList, seed:str, capitalize_first:bool, capitalize_random_weight:int, leetify_weight:int, word_delimiter:str)->str:
     
 
     #String to hold the WIP passphrase
     passphrase = ""
 
     #loop over each letter in the seed
-    for character in seed:
+    for index, character in enumerate(seed):
         #is it a letter?
         if character.isalpha():
             #Is a letter, get a word starting with that letter
@@ -77,6 +78,10 @@ def generate_passphrase(words:word_list.WordList, seed:str, capitalize_first:boo
         else:
             #Not a letter, just write it and continue
             passphrase += character
+        
+        #Check if this is the last time through the loop.  If not, append the delimiter.
+        if index < (len(seed)-1):
+            passphrase += word_delimiter
 
     #All done, write out the generated passphrase
     return passphrase
@@ -95,6 +100,7 @@ def parse_arguments():
     parser.add_argument("-B", type=int, help="Specify the percent chance of a random letter being capitalized. (0-100)", default=25)
     parser.add_argument("-z",action="store_true",help="If specified, randomly convert letters to '1337'.")
     parser.add_argument("-Z",type=int,help="Specify the percent change of a random letter being turned to '1337'. (0-100)", default=10)
+    parser.add_argument("-d","--delimiter",type=str,help="Specify a delimiter to appear between each word of the passphrase.  (Default is no character)", default="")
 
     #parse the arguments
     args = parser.parse_args()
@@ -126,6 +132,9 @@ def parse_arguments():
     else:
         user_options[LEET_RANDOM] = 0
 
+    #Specify the delimiter; defaults "" if not specified
+    user_options[PASSPHRASE_WORD_DELIMITER] = args.delimiter
+
     ###DEBUG
     print(args.count)
     print(args.length)
@@ -135,6 +144,7 @@ def parse_arguments():
     print(args.B)
     print(args.z)
     print(args.Z)
+    print(args.delimiter)
 
     return user_options
 
@@ -148,7 +158,7 @@ def main():
     words = word_list.WordList()
 
     for i in range(user_options[PASSPHRASE_COUNT]):
-        print(generate_passphrase(words, user_options[SEED_WORD], user_options[CAPITALIZE_FIRST], user_options[CAPITALIZE_RANDOM], user_options[LEET_RANDOM]))
+        print(generate_passphrase(words, user_options[SEED_WORD], user_options[CAPITALIZE_FIRST], user_options[CAPITALIZE_RANDOM], user_options[LEET_RANDOM], user_options[PASSPHRASE_WORD_DELIMITER]))
 
 
 if __name__ == "__main__":
