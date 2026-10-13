@@ -7,7 +7,7 @@ Date: 2026-10-10
 Version: 0.2
 Description: This script reads a list of English words and exposes them as a class that contains a dictionary based on the first letter of the word.
 
-This uses the "Small Spelling Dictionary" from Dr. Phillip M. Feldman, https://phillipmfeldman.org/English/spelling%20dictionaries.html
+This uses both the "Small" and "Large" "Spelling Dictionary" from Dr. Phillip M. Feldman, https://phillipmfeldman.org/English/spelling%20dictionaries.html
 """
 
 import os, secrets
