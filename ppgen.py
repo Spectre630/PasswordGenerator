@@ -23,6 +23,9 @@ CAPITALIZE_FIRST = "capFirst"
 CAPITALIZE_RANDOM = "capRandom"
 LEET_RANDOM = "leetRandom"
 PASSPHRASE_WORD_DELIMITER = "wordDelimiter"
+USE_LARGE_DICTIONARY = "useLargeDic"
+
+LARGE_DICTIONARY_FILENAME = "word_list_large.txt"
 
 def generate_random_string(length:int)->str:
     #Generate a random length string of specified length to use as a seed word
@@ -98,9 +101,11 @@ def parse_arguments():
     parser.add_argument("-a", action="store_false", help="Suppress capitalizing the first letter of each word.  (Default capitalizes first word)")
     parser.add_argument("-b", action="store_true",help="If specified, capitalize random letters.")
     parser.add_argument("-B", type=int, help="Specify the percent chance of a random letter being capitalized. (0-100)", default=25)
+    parser.add_argument("-d","--delimiter",type=str,help="Specify a delimiter to appear between each word of the passphrase.  (Default is no character)", default="")
+    parser.add_argument("-e",action="store_true",help="If specified, uses the large, extended dictionary.  This adds significantly more words, but some may be less common or offensive.")
     parser.add_argument("-z",action="store_true",help="If specified, randomly convert letters to '1337'.")
     parser.add_argument("-Z",type=int,help="Specify the percent change of a random letter being turned to '1337'. (0-100)", default=10)
-    parser.add_argument("-d","--delimiter",type=str,help="Specify a delimiter to appear between each word of the passphrase.  (Default is no character)", default="")
+    
 
     #parse the arguments
     args = parser.parse_args()
@@ -135,6 +140,9 @@ def parse_arguments():
     #Specify the delimiter; defaults "" if not specified
     user_options[PASSPHRASE_WORD_DELIMITER] = args.delimiter
 
+    #Check if we should use the large dictionary
+    user_options[USE_LARGE_DICTIONARY] = args.e
+
     ###DEBUG
     print(args.count)
     print(args.length)
@@ -145,6 +153,7 @@ def parse_arguments():
     print(args.z)
     print(args.Z)
     print(args.delimiter)
+    print(args.e)
 
     return user_options
 
@@ -155,7 +164,7 @@ def main():
     user_options = parse_arguments()
 
     #Make an instance of the word list
-    words = word_list.WordList()
+    words = word_list.WordList() if not user_options[USE_LARGE_DICTIONARY] else word_list.WordList(LARGE_DICTIONARY_FILENAME)
 
     for i in range(user_options[PASSPHRASE_COUNT]):
         print(generate_passphrase(words, user_options[SEED_WORD], user_options[CAPITALIZE_FIRST], user_options[CAPITALIZE_RANDOM], user_options[LEET_RANDOM], user_options[PASSPHRASE_WORD_DELIMITER]))
