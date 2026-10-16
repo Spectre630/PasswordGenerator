@@ -96,7 +96,7 @@ def parse_arguments():
     #setup the options
     parser.add_argument("-c", "--count", type=int, help="If specified, output multiple possible passphrases", default=1)
     group1 = parser.add_mutually_exclusive_group()
-    group1.add_argument("-l","--length",type=int,help="Specify the length for a random seed",default=4)
+    group1.add_argument("-l","--length",type=int,help="Specify the length for a random seed",default=6)  #changed to 6, per EFF: https://www.eff.org/dice
     group1.add_argument("-s","--seed",type=str,help="Specify a seed word to use")
     parser.add_argument("-a", action="store_false", help="Suppress capitalizing the first letter of each word.  (Default capitalizes first word)")
     parser.add_argument("-b", action="store_true",help="If specified, capitalize random letters.")
