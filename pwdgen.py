@@ -1,10 +1,20 @@
 # Password Generator
 # by Spectre
-# ver. 0.2 (10-Oct-26)
+# ver. 0.2 (15-Oct-26)
 #
 # This script will generate a random password based on length and desired characters
 
-import secrets, sys
+import secrets, argparse, sys
+
+#Defining constants
+EXCLUDE_SIMILAR = "excludeSimilar"
+INCLUDE_FORBIDDEN = "includeForbidden"
+PASSWORD_COUNT = "passwordCount"
+PASSWORD_LENGTH = "passwordLength"
+INCLUDE_LOWER = "includeLower"
+INCLUDE_UPPER = "includeUpper"
+INCLUDE_NUMBER = "includeNumber"
+INCLUDE_SYMBOL = "includeSymbol"
 
 #Create a string that will hold the possible characters
 possible_characters = ""
@@ -31,10 +41,10 @@ def include_numbers(exclude_similar = False):
         possible_characters += "01"
 
 #Function to include symbols
-def include_symbols(exclude_possibly_forbidden = True):
+def include_symbols(include_possibly_forbidden = False):
     global possible_characters
     possible_characters += "!@#$%^&*()<>?+=-_/~"
-    if not exclude_possibly_forbidden:
+    if include_possibly_forbidden:
         possible_characters += "'\"\\"
 
 #Function to get one character from the list of possible characters
@@ -48,191 +58,68 @@ def generate_password(length):
         generated_password += get_character()
     return generated_password
 
-#Function to display help
-def display_help():
-    print("Random Password Generator")
-    print("by Spectre")
-    print("")
-    print("Usage: python pwdgen.py [option]")
-    print("Option\t\tDescription")
-    print("-------\t\t-----------")
-    print("-c [num]\tSpecify number of passwords to generate")
-    print("-f\t\tInclude potentially forbidden symbols, such as \". [Default=False]")
-    print("--help\t\tThis help screen")
-    print("-i [code]\tInclude only the types of characters specified")
-    print("-l [num]\tGenerate password(s) of the specified length. [Default=12]")
-    print("-s\t\tExclude similar characters, e.g., O and 0. [Default=False]")
-    print("-x [code]\tExclude the specified types from the default.")
-    print("")
-    print("Codes:")
-    print("\ta\tLower case letters")
-    print("\tA\tUpper case letters")
-    print("\tn\tNumbers")
-    print("\ts\tSymbols")
+#Parse the command line arguments
+def parse_arguments():
+    #This will parse our arguments, get the results, and return a dictionary with the user's settings
+    parser = argparse.ArgumentParser(description="Generate a randomly generated password.")
+
+    #setup the options
+    parser.add_argument("-c", "--count", type=int, help="If specified, output multiple passwords", default=1)
+    parser.add_argument("-l","--length",type=int,help="Specify the length for the password [Default=12]",default=12)
+    group1 = parser.add_mutually_exclusive_group()
+    group1.add_argument("-i","--include", type=str, help="Specify which characters to include- a=lower case, A=upper case, n=numbers, s=symbols.",default="aAns")
+    group1.add_argument("-x","--exclude",type=str, help="Specify which characters to exclude- a=lower case, A=upper case, n=numbers, s=symbols [Default=all]")
+    parser.add_argument("-f","--forbidden", action="store_true", help="Include potentially forbidden symbols, such as \". [Default=false]")
+    parser.add_argument("-s","--no_similar", action="store_true",help="Exclude similar characters, e.g., O and 0. [Default=false]")
+
+    #parse the arguments
+    args = parser.parse_args()
+
+    #turn that into a dictionary
+    user_options = {}
+
+    user_options[PASSWORD_COUNT] = args.count
+    user_options[PASSWORD_LENGTH] = args.length
+    user_options[EXCLUDE_SIMILAR] = args.no_similar
+    user_options[INCLUDE_FORBIDDEN] = args.forbidden
+
+    #Process the include/exclude characters
+    if args.exclude != None:
+        #User specified EXCLUDE, which means we will include all BUT what is specified
+        user_options[INCLUDE_LOWER] = False if 'a' in args.exclude else True
+        user_options[INCLUDE_UPPER] = False if 'A' in args.exclude else True
+        user_options[INCLUDE_NUMBER] = False if 'n' in args.exclude else True
+        user_options[INCLUDE_SYMBOL] = False if 's' in args.exclude else True
+    else:
+        #User must have done INCLUDE, which means we only include what they specified
+        user_options[INCLUDE_LOWER] = True if 'a' in args.include else False
+        user_options[INCLUDE_UPPER] = True if 'A' in args.include else False
+        user_options[INCLUDE_NUMBER] = True if 'n' in args.include else False
+        user_options[INCLUDE_SYMBOL] = True if 's' in args.include else False
 
 
+    return user_options
 
-#***Main Program***
+    
+#***MAIN***
+def main():
+    #Get the command line arguments
+    user_options = parse_arguments()
 
-#For now, set some defaults
-password_length = 12
-number_passwords = 1
-use_lower = True
-use_upper = True
-use_numbers = True
-use_symbols = True
-exclude_similar = False
-exclude_possibly_forbidden = True
-
-##DEBUG
-#print(sys.argv)
-
-#Let's get some command line arguments
-#   Valid arguments:
-#       --help
-#       -x [codes]      use defaults, but exclude the provided options
-#       -i [codes]      use only specified codes
-#       -l [num]        password length
-#       -c [num]        number of passwords
-#       -s              exclude similar characters
-#       -f              include possibly forbidden symbols
-#   where, [codes]:
-#       a               lower case letters
-#       A               upper case letters
-#       n               numbers
-#       s               symbols
-#Check if they passed any arguments, otherwise we'll use the defaults
-if len(sys.argv) > 1:
-    i = 1
-    while i < len(sys.argv):
-        buffer = sys.argv[i]
-        match buffer:
-            case "--help":
-                display_help()
-                sys.exit()
-            case "-s":
-                #exclude similar characters
-                exclude_similar = True
-            case "-f":
-                #include possibly forbidden symbols
-                exclude_possibly_forbidden = False
-            case "-x":
-                #User wants to EXCLUDE certain options from the defaults
-                #Get next argument to parse
-                #Check for buffer overrun
-                if (i+1) >= len(sys.argv):
-                    #Not another argument, throw an error and exit
-                    print("No option provided for argument \'-x\'.\nUse \"--help\" to display usage.")
-                    sys.exit()
-                buffer_next = sys.argv[i+1]
-                for j in range(len(buffer_next)):
-                    #Step through each character and compare to our known codes
-                    match buffer_next[j]:
-                        case "a":
-                            use_lower = False
-                        case "A":
-                            use_upper = False
-                        case "n":
-                            use_numbers = False
-                        case "s":
-                            use_symbols = False
-                        case _:
-                            #unknown code, throw an error
-                            print(f"Unknown code: {buffer_next[j]}.\nUse \"--help\" for display usage.")
-                            sys.exit()
-                #increment i twice to skip the next argument since we just parsed it
-                i += 1
-            case "-i":
-                #User wants to INCLUDE only certain options
-                #Get next argument to parse
-                #Check for buffer overrun
-                if (i+1) >= len(sys.argv):
-                    #Not another argument, throw an error and exit
-                    print("No option provided for argument \'-i\'.\nUse \"--help\" to display usage.")
-                    sys.exit()
-                #We need to set all options to false since the user is specifying what they want
-                use_lower = False
-                use_upper = False
-                use_numbers = False
-                use_symbols = False
-
-                buffer_next = sys.argv[i+1]
-                for j in range(len(buffer_next)):
-                    #Step through each character and compare to our known codes
-                    match buffer_next[j]:
-                        case "a":
-                            use_lower = True
-                        case "A":
-                            use_upper = True
-                        case "n":
-                            use_numbers = True
-                        case "s":
-                            use_symbols = True
-                        case _:
-                            #unknown code, throw an error
-                            print(f"Unknown code: {buffer_next[j]}.\nUse \"--help\" to display usage.")
-                            sys.exit()
-                #increment i twice to skip the next argument since we just parsed it
-                i += 1
-            case "-l":
-                #User is specifying length of password, next arg is a number
-                #Get next argument to parse
-                #Check for buffer overrun
-                if (i+1) >= len(sys.argv):
-                    #Not another argument, throw an error and exit
-                    print("No option provided for argument \'-l\'.\nUse \"--help\" to display usage.")
-                    sys.exit()
-                buffer_next = sys.argv[i+1]
-
-                if buffer_next.isnumeric():
-                    #it is a number, convert it
-                    password_length = int(buffer_next)
-                else:
-                    #non-numeric, throw an error
-                    print(f"Numeric value expected: {buffer_next}\nUse \"--help\" to display usage.")
-                    sys.exit()
-
-                #increment twice because it consumes the next argument
-                i += 1
-            case "-c":
-                #User is specifying numer of passwords, next arg is a number
-                #Get next argument to parse
-                #Check for buffer overrun
-                if (i+1) >= len(sys.argv):
-                    #Not another argument, throw an error and exit
-                    print("No option provided for argument \'-c\'.\nUse \"--help\" to display usage.")
-                    sys.exit()
-                buffer_next = sys.argv[i+1]
-
-                if buffer_next.isnumeric():
-                    #it is a number, convert it
-                    number_passwords = int(buffer_next)
-                else:
-                    #non-numeric, throw an error
-                    print(f"Numeric value expected: {buffer_next}\nUse \"--help\" to display usage.")
-                    sys.exit()
-
-                #increment twice because it consumes the next argument
-                i += 1
-            case _:
-                print("Unknown option.\nUse \"--help\" to display usage.")
-                sys.exit()
+    #Generate the list of possible characters
+    if user_options[INCLUDE_LOWER]:
+        include_lower(user_options[EXCLUDE_SIMILAR])
+    if user_options[INCLUDE_UPPER]:
+        include_upper(user_options[EXCLUDE_SIMILAR])
+    if user_options[INCLUDE_NUMBER]:
+        include_numbers(user_options[EXCLUDE_SIMILAR])
+    if user_options[INCLUDE_SYMBOL]:
+        include_symbols(user_options[INCLUDE_FORBIDDEN])
+    
+    #Generate the passwords
+    for i in range(user_options[PASSWORD_COUNT]):
+        print(generate_password(user_options[PASSWORD_LENGTH]))
 
 
-        i += 1 #don't forget to increment!
-
-
-if use_lower:
-    include_lower(exclude_similar)
-if use_upper:
-    include_upper(exclude_similar)
-if use_numbers:
-    include_numbers(exclude_similar)
-if use_symbols:
-    include_symbols(exclude_possibly_forbidden)
-
-##DEBUG##
-#print(possible_characters)
-
-for i in range(number_passwords):
-    print(generate_password(password_length))
+if __name__ == "__main__":
+    main()
