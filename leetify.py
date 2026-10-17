@@ -41,7 +41,6 @@ class Leetify:
         #Check if first letter chance, if so, we might convert the word to a single leet letter
         if first_letter_chance and (word[0] in cls.__leet_dict__):
             #First letter chance is being used and the first letter is leetable, so let's see if the dice roll says to do it?
-            #if random.randint(1, 100) <= leet_chance:
             if (secrets.randbelow(99)+1) <= leet_chance:
                 #Winner!
                 return cls.__leet_dict__[word[0]]
@@ -51,7 +50,6 @@ class Leetify:
 
         #Loop through each letter, and leetify if the dice say so
         for i in range(1,len(word)):
-            #if (word[i] in cls.__leet_dict__) and (random.randint(1, 100) <= leet_chance):
             if (word[i] in cls.__leet_dict__) and ((secrets.randbelow(99)+1) <= leet_chance):
                 #Word is leetable and the dice roll says to do it
                 word_as_list[i] = cls.__leet_dict__[word[i]]

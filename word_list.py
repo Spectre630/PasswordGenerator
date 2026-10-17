@@ -43,7 +43,6 @@ class WordList:
         This function returns a random word starting with the specified letter.
         """
 
-        #i = random.randrange(len(self.words[first_letter.lower()]))
         i = secrets.randbelow(len(self.words[first_letter.lower()]))
         return self.words[first_letter][i]
 

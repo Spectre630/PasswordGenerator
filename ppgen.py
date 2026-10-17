@@ -40,7 +40,6 @@ def capitalize_random(word:str, capitalize_chance:int=10)->str:
 
     #loop through each character, capitalize if the odds favor it
     for i in range(1, len(word_buffer)):
-        #if random.randint(1, 100) <= capitalize_chance:
         if (secrets.randbelow(99)+1) <= capitalize_chance:
             #We win! Capitalize
             word_buffer[i] = word_buffer[i].upper()
@@ -69,7 +68,7 @@ def generate_passphrase(words:word_list.WordList, seed:str, capitalize_first:boo
             if leetify_weight > 0:
                 #Non-zero, so run it
                 word = leetify.Leetify.leetify_word(word, leetify_weight)
-             #len
+
             #Random capitalization
             if capitalize_random_weight > 0:
                 #Non-zero, run it
@@ -143,17 +142,6 @@ def parse_arguments():
     #Check if we should use the large dictionary
     user_options[USE_LARGE_DICTIONARY] = args.e
 
-    ###DEBUG
-    print(args.count)
-    print(args.length)
-    print(args.seed)
-    print(user_options[SEED_WORD])
-    print(args.b)
-    print(args.B)
-    print(args.z)
-    print(args.Z)
-    print(args.delimiter)
-    print(args.e)
 
     return user_options
 
